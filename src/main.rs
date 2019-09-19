@@ -1,5 +1,3 @@
-extern crate libkvstore;
-
 use libkvstore::KVStore;
 
 #[cfg(target_family = "unix")]
