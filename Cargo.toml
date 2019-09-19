@@ -13,3 +13,7 @@ crc = "1.7"
 [lib]
 name = "libkvstore"
 path = "src/lib.rs"
+
+[[bin]]
+name = "kv_mem"
+path = "src/main.rs"
