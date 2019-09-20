@@ -23,8 +23,11 @@ fn main() {
     match action {
         "get" => {
             match store.get(key).unwrap() {
-                None => eprintln!("{:?} not found", String::from_utf8(key.to_vec())),
-                Some(value) => println!("{:?}", String::from_utf8(value.to_vec())),
+                None => {
+                    let key = String::from_utf8(key.to_vec()).expect("error converting from ut8");
+                    eprintln!("{} not found", key);
+                },
+                Some(value) => println!("{:?}", value),
             }
         },
         "delete" => store.delete(key).unwrap(),

@@ -36,9 +36,9 @@ impl KVStore {
     }
 
     pub fn load(&mut self) -> io::Result<()> {
+        // use BufReader to buffer the reads and writes.
         let mut file_buffer = BufReader::new(&mut self.file);
         loop {
-            // TODO: https://stackoverflow.com/questions/34878970/how-to-get-current-cursor-position-in-file/
             let current_pos = file_buffer.seek(SeekFrom::Current(0))?;
             //get the key value pair stored at this location
             let current_kv_pair = process_record(&mut file_buffer);
@@ -64,7 +64,7 @@ impl KVStore {
     }
 
     fn get_to_position(&mut self, position: u64) {
-        self.file.seek(SeekFrom::Start(position));
+        self.file.seek(SeekFrom::Start(position)).expect("Error changing the current position by the sepicified offset");
     }
 
     pub fn insert(&mut self, key: &ByteStr, val: &ByteStr) -> io::Result<()> {
@@ -104,7 +104,7 @@ impl KVStore {
         self.insert(key, b"")
     }
 
-    pub fn get(&mut self, key: &ByteStr) -> io::Result<Option<ByteString>> {
+    pub fn get(&mut self, key: &ByteStr) -> io::Result<Option<String>> {
         //fetch the position from the kv hashmap
         let position = match self.index.get(key) {
             None => return Ok(None),
@@ -115,7 +115,11 @@ impl KVStore {
         //process the corresonding record
         let mut file_buffer = BufReader::new(&mut self.file);
         let kv_pair = process_record(&mut file_buffer)?;
-        Ok(Some(ByteString::from(kv_pair.value)))
+        if kv_pair.value == b"" {
+            return Ok(None)
+        }
+        let value = String::from_utf8(kv_pair.value).expect("error converting from utf8");
+        Ok(Some(value))
     }
 
 }
